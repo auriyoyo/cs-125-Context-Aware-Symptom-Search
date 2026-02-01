@@ -1,0 +1,7 @@
+
+# Build Files
+**/bin/
+**/*.exe
+
+# Environment Variables
+.env
