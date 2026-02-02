@@ -5,9 +5,9 @@ fmt:
 vet: fmt
 	go vet ./...
 build: vet
-	go build -o bin/service main.go
+	go build -o bin/service.exe main.go
 run: build
-	bin/service
+	./bin/service.exe
 clean:
 	if exist bin\ rmdir /s /q bin
 .PHONY: fmt vet build run clean
