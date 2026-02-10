@@ -11,10 +11,10 @@ import (
 
 type APIResponse struct {
 	ID        bson.ObjectID `bson:"_id,omitempty"`
-	Query     string       `bson:"query"`
-	Data      bson.M       `bson:"data"`
-	FetchedAt time.Time    `bson:"fetched_at"`
-	ExpiresAt time.Time    `bson:"expires_at"`
+	Query     string        `bson:"query"`
+	Data      bson.M        `bson:"data"`
+	FetchedAt time.Time     `bson:"fetched_at"`
+	ExpiresAt time.Time     `bson:"expires_at"`
 }
 
 type Store struct {
@@ -43,7 +43,7 @@ func (s *Store) CreateIndexes(ctx context.Context) error {
 	}
 
 	_, err = s.responses.Indexes().CreateOne(ctx, mongo.IndexModel{
-		Keys: bson.D{{Key: "expires_at", Value: 1}},
+		Keys:    bson.D{{Key: "expires_at", Value: 1}},
 		Options: options.Index().SetExpireAfterSeconds(0),
 	})
 	return err
@@ -101,4 +101,3 @@ func (s *Store) UpdateSyncMetadata(ctx context.Context, lastSync time.Time) erro
 	)
 	return err
 }
-
