@@ -31,8 +31,3 @@ func GetEnv(key, defaultValue string) string {
 	}
 	return value
 }
-
-
-
-
-

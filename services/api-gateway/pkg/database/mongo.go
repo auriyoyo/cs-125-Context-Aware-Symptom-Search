@@ -38,8 +38,3 @@ func Disconnect() error {
 func GetDatabase(name string) *mongo.Database {
 	return Client.Database(name)
 }
-
-
-
-
-
