@@ -36,7 +36,7 @@ func main() {
 		Terms: []string{"Cold"},
 	}
 
-	resp, err := client.QueryWithRequest(req)
+	resp, err := client.GetConditions(req)
 	if err != nil {
 		log.Fatalf("Health API query failed: %v", err)
 	}
