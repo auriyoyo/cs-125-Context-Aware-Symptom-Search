@@ -1,0 +1,12 @@
+[
+  {
+    "_id": "influenza",
+    "name": "influenza",
+    "symptoms": ["fever","cough","fatigue"]
+  },
+  {
+    "_id": "common_cold",
+    "name": "common cold",
+    "symptoms": ["cough","fatigue"]
+  }
+]

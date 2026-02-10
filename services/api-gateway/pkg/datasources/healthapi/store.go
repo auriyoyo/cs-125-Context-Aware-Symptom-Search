@@ -90,7 +90,7 @@ func (s *Store) LogError(ctx context.Context, query string, err error) error {
 }
 
 func (s *Store) UpdateSyncMetadata(ctx context.Context, lastSync time.Time) error {
-	opts := options.Update().SetUpsert(true)
+	opts := options.UpdateOne().SetUpsert(true)
 	_, err := s.metadata.UpdateOne(
 		ctx,
 		bson.D{{Key: "type", Value: "last_sync"}},

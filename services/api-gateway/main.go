@@ -10,7 +10,7 @@ import (
 	"github.com/auriyoyo/cs-125-Context-Aware-Symptom-Search/services/api-gateway/pkg/config"
 	"github.com/auriyoyo/cs-125-Context-Aware-Symptom-Search/services/api-gateway/pkg/database"
 	"github.com/auriyoyo/cs-125-Context-Aware-Symptom-Search/services/api-gateway/pkg/datasources"
-	"github.com/auriyoyo/cs-125-Context-Aware-Symptom-Search/services/api-gateway/pkg/datasources/healthapi"
+	"github.com/auriyoyo/cs-125-Context-Aware-Symptom-Search/services/api-gateway/pkg/datasources/localjson"
 )
 
 func main() {
@@ -18,21 +18,30 @@ func main() {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
+	if config.MongoDBURI != "" {
 	if err := database.Connect(config.MongoDBURI); err != nil {
-		log.Fatalf("Failed to connect to MongoDB: %v", err)
+		log.Printf("MongoDB not available, continuing without it: %v", err)
+		} else {
+			defer database.Disconnect()
+		}
+	} else {
+		log.Println("MongoDB URI empty, continuing without MongoDB")
 	}
-	defer database.Disconnect()
+
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	var sources []datasources.DataSource
 
+	// commented out until healthapi fixed
+	/*
 	healthAPISource, err := healthapi.NewSource()
 	if err != nil {
 		log.Fatalf("Failed to initialize health API source: %v", err)
 	}
 	sources = append(sources, healthAPISource)
+	*/
 
 	for _, source := range sources {
 		if err := source.Start(ctx); err != nil {
@@ -40,6 +49,12 @@ func main() {
 		}
 		log.Printf("Started data source: %s (database: %s)", source.Name(), source.DatabaseName())
 	}
+
+	store, err := localjson.Load("../dataset-ingest/diseases.json")
+	if err != nil {
+		log.Fatalf("Failed to load diseases.json: %v", err)
+	}
+	go startHTTP(store)
 
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
