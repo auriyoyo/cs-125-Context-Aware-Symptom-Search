@@ -1,7 +1,6 @@
 package healthapi
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"

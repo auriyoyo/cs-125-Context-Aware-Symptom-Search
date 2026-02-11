@@ -20,14 +20,12 @@ type APIResponse struct {
 type Store struct {
 	responses *mongo.Collection
 	metadata  *mongo.Collection
-	errors    *mongo.Collection
 }
 
 func NewStore(db *mongo.Database) *Store {
 	return &Store{
 		responses: db.Collection("responses"),
 		metadata:  db.Collection("metadata"),
-		errors:    db.Collection("errors"),
 	}
 }
 
@@ -49,23 +47,6 @@ func (s *Store) CreateIndexes(ctx context.Context) error {
 	return err
 }
 
-func (s *Store) GetCachedResponse(ctx context.Context, query string) (*APIResponse, error) {
-	var response APIResponse
-	err := s.responses.FindOne(ctx, bson.D{
-		{Key: "query", Value: query},
-		{Key: "expires_at", Value: bson.D{{Key: "$gt", Value: time.Now()}}},
-	}).Decode(&response)
-
-	if err == mongo.ErrNoDocuments {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, err
-	}
-
-	return &response, nil
-}
-
 func (s *Store) StoreResponse(ctx context.Context, query string, data map[string]interface{}, ttl time.Duration) error {
 	now := time.Now()
 	response := APIResponse{
@@ -76,16 +57,6 @@ func (s *Store) StoreResponse(ctx context.Context, query string, data map[string
 	}
 
 	_, err := s.responses.InsertOne(ctx, response)
-	return err
-}
-
-func (s *Store) LogError(ctx context.Context, query string, err error) error {
-	errorDoc := bson.M{
-		"query":     query,
-		"error":     err.Error(),
-		"timestamp": time.Now(),
-	}
-	_, err = s.errors.InsertOne(ctx, errorDoc)
 	return err
 }
 
