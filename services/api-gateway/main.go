@@ -21,8 +21,8 @@ func main() {
 	}
 
 	if config.MongoDBURI != "" {
-	if err := database.Connect(config.MongoDBURI); err != nil {
-		log.Printf("MongoDB not available, continuing without it: %v", err)
+		if err := database.Connect(config.MongoDBURI); err != nil {
+			log.Printf("MongoDB not available, continuing without it: %v", err)
 		} else {
 			defer database.Disconnect()
 		}
@@ -30,19 +30,18 @@ func main() {
 		log.Println("MongoDB URI empty, continuing without MongoDB")
 	}
 
-
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	var sources []datasources.DataSource
 
-	// commented out until healthapi fixed
+	// commented out until conditions source fixed
 	/*
-	healthAPISource, err := healthapi.NewSource()
-	if err != nil {
-		log.Fatalf("Failed to initialize health API source: %v", err)
-	}
-	sources = append(sources, healthAPISource)
+		conditionsSource, err := conditions.NewSource()
+		if err != nil {
+			log.Fatalf("Failed to initialize conditions source: %v", err)
+		}
+		sources = append(sources, conditionsSource)
 	*/
 
 	for _, source := range sources {
