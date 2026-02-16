@@ -90,3 +90,19 @@ func normalize(in []string) []string {
 	}
 	return out
 }
+
+func (st *Store) MatchCount(disease string, symptoms []string) int {
+    q := normalize(symptoms)
+    s, ok := st.set[disease]
+    if !ok {
+        return 0
+    }
+    count := 0
+    for _, sym := range q {
+        if s[sym] {
+            count++
+        }
+    }
+    return count
+}
+

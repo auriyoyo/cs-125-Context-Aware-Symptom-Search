@@ -4,9 +4,58 @@
     "name": "influenza",
     "symptoms": ["fever","cough","fatigue"]
   },
+
   {
     "_id": "common_cold",
     "name": "common cold",
     "symptoms": ["cough","fatigue"]
+  },
+
+  {
+    "_id": "gastroenteritis",
+    "name": "gastroenteritis",
+    "symptoms": ["nausea", "vomiting", "diarrhea", "stomach pain", "fatigue"]
+  },
+
+  {
+    "_id": "food_poisoning",
+    "name": "food poisoning",
+    "symptoms": ["nausea", "vomiting", "diarrhea", "stomach cramps", "fever"]
+  },
+
+  {
+    "_id": "migraine",
+    "name": "migraine",
+    "symptoms": ["headache", "nausea", "vomiting", "light sensitivity", "fatigue"]
+  },
+
+  {
+    "_id": "covid19",
+    "name": "covid-19",
+    "symptoms": ["fever", "cough", "fatigue", "loss of taste", "loss of smell", "shortness of breath", "headache"]
+  },
+
+  {
+    "_id": "strep_throat",
+    "name": "strep throat",
+    "symptoms": ["sore throat", "fever", "headache", "fatigue", "difficulty swallowing"]
+  },
+
+  {
+    "_id": "allergic_rhinitis",
+    "name": "allergic rhinitis",
+    "symptoms": ["sneezing", "runny nose", "itchy eyes", "congestion"]
+  },
+
+  {
+    "_id": "bronchitis",
+    "name": "bronchitis",
+    "symptoms": ["cough", "fatigue", "shortness of breath", "chest discomfort"]
+  },
+  
+  {
+    "_id": "dehydration",
+    "name": "dehydration",
+    "symptoms": ["fatigue", "dizziness", "dry mouth", "headache"]
   }
 ]

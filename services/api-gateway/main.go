@@ -13,6 +13,7 @@ import (
 	"github.com/auriyoyo/cs-125-Context-Aware-Symptom-Search/services/api-gateway/pkg/database"
 	"github.com/auriyoyo/cs-125-Context-Aware-Symptom-Search/services/api-gateway/pkg/datasources"
 	"github.com/auriyoyo/cs-125-Context-Aware-Symptom-Search/services/api-gateway/pkg/datasources/localjson"
+	"github.com/auriyoyo/cs-125-Context-Aware-Symptom-Search/services/api-gateway/pkg/personalmodel"
 )
 
 func main() {
@@ -55,7 +56,15 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to load diseases.json: %v", err)
 	}
-	go startHTTP(store)
+
+	// personal model store (Mongo-backed) + optional if Mongo isn't connected
+	var pmStore *personalmodel.Store
+	if database.Client != nil {
+		db := database.GetDatabase("clinical_tables") 
+		pmStore = personalmodel.NewStore(db)
+	}
+
+	go startHTTP(store, pmStore)
 
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
