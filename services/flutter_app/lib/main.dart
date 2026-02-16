@@ -70,7 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }*/
 
   Future<void> fetchDisease() async {
-    final url = Uri.parse('https://example.com/disease'); // Use Uri.parse
+    final url = Uri.parse('http://localhost:8080/search?symptoms=fever,cough'); // Use Uri.parse
     final response = await http.get(url); // await the HTTP request
 
     setState(() {
