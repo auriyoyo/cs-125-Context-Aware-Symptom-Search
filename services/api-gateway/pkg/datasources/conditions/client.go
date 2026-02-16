@@ -1,4 +1,4 @@
-package healthapi
+package conditions
 
 import (
 	"encoding/json"

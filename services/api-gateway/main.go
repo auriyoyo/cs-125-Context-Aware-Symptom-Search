@@ -36,13 +36,13 @@ func main() {
 
 	var sources []datasources.DataSource
 
-	// commented out until healthapi fixed
+	// commented out until conditions source fixed
 	/*
-	healthAPISource, err := healthapi.NewSource()
+	conditionsSource, err := conditions.NewSource()
 	if err != nil {
-		log.Fatalf("Failed to initialize health API source: %v", err)
+		log.Fatalf("Failed to initialize conditions source: %v", err)
 	}
-	sources = append(sources, healthAPISource)
+	sources = append(sources, conditionsSource)
 	*/
 
 	for _, source := range sources {

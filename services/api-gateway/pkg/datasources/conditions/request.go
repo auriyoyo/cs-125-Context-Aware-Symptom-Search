@@ -1,4 +1,4 @@
-package healthapi
+package conditions
 
 // QueryRequest models the JSON body sent to the Health API.
 // All fields except Terms are optional.
