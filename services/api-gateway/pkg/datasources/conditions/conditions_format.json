@@ -1,0 +1,43 @@
+
+_id
+"J00"
+key_id
+"11148"
+consumer_name
+"Common cold"
+icd10cm_codes
+"J00"
+primary_name
+"Common cold"
+term_icd9_code
+"460"
+
+synonyms
+Array (2)
+0
+"Acute nasopharyngitis"
+1
+"COLD"
+
+info_link_data
+Array (1)
+
+0
+Array (2)
+0
+"http://www.nlm.nih.gov/medlineplus/commoncold.html"
+1
+"Common Cold"
+
+icd10cm
+Array (1)
+0
+Object
+code
+"J00"
+name
+"Acute nasopharyngitis [common cold]"
+term_icd9_text
+"Acute nasopharyngitis [common cold]"
+word_synonyms
+""
