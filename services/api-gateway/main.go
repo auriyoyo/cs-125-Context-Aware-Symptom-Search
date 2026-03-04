@@ -60,7 +60,7 @@ func main() {
 	// personal model store (Mongo-backed) + optional if Mongo isn't connected
 	var pmStore *personalmodel.Store
 	if database.Client != nil {
-		db := database.GetDatabase("clinical_tables") 
+		db := database.GetDatabase("kaggle_dataset") 
 		pmStore = personalmodel.NewStore(db)
 	}
 
