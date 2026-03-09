@@ -4,16 +4,19 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strings"
 	"sort"
+	"strings"
 
+	"github.com/auriyoyo/cs-125-Context-Aware-Symptom-Search/services/api-gateway/pkg/datasources/liveevents"
 	"github.com/auriyoyo/cs-125-Context-Aware-Symptom-Search/services/api-gateway/pkg/datasources/localjson"
 	"github.com/auriyoyo/cs-125-Context-Aware-Symptom-Search/services/api-gateway/pkg/personalmodel"
 )
 
 type SearchResponse struct {
-	Query   []string           `json:"query"`
-	Results []localjson.Result `json:"results"`
+	Query        []string                 `json:"query"`
+	Results      []localjson.Result       `json:"results"`
+	RiskWarnings []liveevents.RiskWarning `json:"riskWarnings,omitempty"`
+	UserArea     string                   `json:"userArea,omitempty"`
 }
 
 func enableCORS(w http.ResponseWriter) {
@@ -22,7 +25,7 @@ func enableCORS(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 }
 
-func startHTTP(store *localjson.Store, pm *personalmodel.Store) {
+func startHTTP(store *localjson.Store, pm *personalmodel.Store, le *liveevents.Store) {
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		enableCORS(w)
 
@@ -44,9 +47,9 @@ func startHTTP(store *localjson.Store, pm *personalmodel.Store) {
 			if s != "" {
 				symptoms = append(symptoms, s)
 			}
-}
+		}
 
-		userID := r.URL.Query().Get("user") 
+		userID := r.URL.Query().Get("user")
 
 		var history []string
 		if pm != nil && userID != "" {
@@ -73,11 +76,18 @@ func startHTTP(store *localjson.Store, pm *personalmodel.Store) {
 			})
 		}
 
+		resp := SearchResponse{Query: symptoms, Results: results}
+		if le != nil {
+			if enrichment, _ := le.EnrichForUser(r.Context(), userID, symptoms); enrichment != nil {
+				resp.RiskWarnings = enrichment.RiskWarnings
+				resp.UserArea = enrichment.UserArea
+			}
+		}
+
 		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(SearchResponse{Query: symptoms, Results: results})
+		_ = json.NewEncoder(w).Encode(resp)
 	})
 
 	log.Println("HTTP server listening on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
-
