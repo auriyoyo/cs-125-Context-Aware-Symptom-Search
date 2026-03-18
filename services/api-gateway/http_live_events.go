@@ -16,11 +16,25 @@ type locationRequest struct {
 	ZipCode string `json:"zipCode"`
 }
 
+type alertRequest struct {
+	ZipCode     string   `json:"zipCode"`
+	Country     string   `json:"country"`
+	State       string   `json:"state"`
+	City        string   `json:"city"`
+	Provider    string   `json:"provider"`
+	Hazard      string   `json:"hazard"`
+	Severity    string   `json:"severity"`
+	SymptomTags []string `json:"symptomTags"`
+	GuidanceURL string   `json:"guidanceUrl"`
+	HoursActive int      `json:"hoursActive"`
+}
+
 func registerLiveEventHandlers(store *liveevents.Store) {
 	if store == nil {
 		return
 	}
 	http.HandleFunc("/events/location", handleLocationEvent(store))
+	http.HandleFunc("/events/alert", handleAlertEvent(store))
 	http.HandleFunc("/context/user/events", handleUserEvents(store))
 	http.HandleFunc("/context/area/risks", handleAreaRisks(store))
 }
@@ -114,5 +128,61 @@ func handleAreaRisks(store *liveevents.Store) http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(risks)
+	}
+}
+
+func handleAlertEvent(store *liveevents.Store) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		enableCORS(w)
+		if r.Method == http.MethodOptions {
+			return
+		}
+		if r.Method != http.MethodPost {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		var req alertRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "invalid JSON body", http.StatusBadRequest)
+			return
+		}
+
+		if req.ZipCode == "" || req.Country == "" || req.State == "" || req.City == "" || req.Hazard == "" || req.Severity == "" {
+			http.Error(w, "zipCode, country, state, city, hazard, and severity are required", http.StatusBadRequest)
+			return
+		}
+
+		hours := req.HoursActive
+		if hours <= 0 {
+			hours = 24
+		}
+
+		area := liveevents.AreaInfo{
+			Country: req.Country,
+			State:   req.State,
+			City:    req.City,
+		}
+
+		alert := liveevents.AlertPayload{
+			Provider: req.Provider,
+			Hazard:   req.Hazard,
+			Severity: req.Severity,
+			ActiveWindow: liveevents.ActiveWindow{
+				Start: time.Now(),
+				End:   time.Now().Add(time.Duration(hours) * time.Hour),
+			},
+			SymptomTags: req.SymptomTags,
+			GuidanceURL: req.GuidanceURL,
+		}
+
+		if err := store.AppendPublicAlert(r.Context(), req.ZipCode, area, alert, "mock_api"); err != nil {
+			http.Error(w, "failed to record public alert", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		_ = json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 	}
 }
