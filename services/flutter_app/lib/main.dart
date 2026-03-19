@@ -101,13 +101,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
         String formatted = "";
         for (var item in results) {
-          final disease = item['result']['disease'];
-          final score = item['result']['score'];
-          final reasons = item['reasons']; // List<String>
+          final disease = item['result']['disease'].toUpperCase();
+          final matched = item['result']['matched'];
+          final reasons = item['reasons'];
 
-          formatted += 'Score: $score - "$disease"\n';
+          formatted += '$disease matched with symptoms: ';
+          for (var s in matched) {
+            s = s.toUpperCase();
+            formatted += '$s ';
+          }
+          formatted += '\nRecommendation based on:\n';
           for (var r in reasons) {
-            formatted += '  $r\n';
+            formatted += '    $r\n';
           }
           formatted += '\n'; // space between diseases
         }
@@ -140,7 +145,7 @@ class _MyHomePageState extends State<MyHomePage> {
         for (var item in live) {
           final hazard = item['hazard'].toUpperCase();
           final severity = item['severity'].toUpperCase();
-          final List symptoms = item['symptomTags'];
+          final symptoms = item['symptomTags'];
 
           formatted += '$hazard of $severity severity in your area is causing: ';
           for (var s in symptoms) {
@@ -160,7 +165,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final location = await locationService.getLocationData();
 
     final payload = {
-      "userId": "test_user",
+      "userId": "test_user_287",
       ...location,
     };
 
@@ -225,6 +230,9 @@ class _MyHomePageState extends State<MyHomePage> {
                             controller: _controllers[index],
                             readOnly: !_isEditable[index],
                             onSubmitted: (value) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Symptom Added!')),
+                              );
                               _query();
                               setState(() {
                                 _isEditable[index] = false;
@@ -242,6 +250,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           IconButton(
                             icon: const Icon(Icons.close, color: Colors.red),
                             onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Symptom Removed!')),
+                              );
                               setState(() {
                                 _controllers[index].dispose();
                                 _controllers.removeAt(index);
@@ -281,6 +292,26 @@ class _MyHomePageState extends State<MyHomePage> {
               ],
             ),
           ),
+
+          const SizedBox(height: 8),
+
+          ElevatedButton.icon(
+            onPressed: () async {
+              try {
+                await updateLocation();  // send location
+                await fetchLive();       // refresh live alerts
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Location updated!')),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Failed to update location: $e')),
+                );
+              }
+            },
+            label: const Text('Update Location'),
+          ),
+          const SizedBox(height: 16),
         ],
       ),
     );
